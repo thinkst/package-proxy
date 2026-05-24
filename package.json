@@ -8,10 +8,10 @@
     "start": "wrangler dev",
     "test": "vitest",
     "cf-typegen": "wrangler types",
-    "db:migrations:apply": "wrangler d1 migrations apply DB_BINDING --remote"
+    "db:migrations:apply": "wrangler d1 migrations apply install_logs --remote"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.14.1",
+    "@cloudflare/vitest-pool-workers": "^0.16.9",
     "@types/node": "^25.5.0",
     "typescript": "^5.5.2",
     "vitest": "^4.1.2",
