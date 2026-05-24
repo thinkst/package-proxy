@@ -1,0 +1,3 @@
+-- Migration number: 0001 	 2026-04-15T01:33:41.314Z
+DROP TABLE IF EXISTS Installs;
+CREATE TABLE IF NOT EXISTS Installs (InstallTimeStamp DATETIME DEFAULT CURRENT_TIMESTAMP, OrgId TEXT, UserId TEXT, IpAddress TEXT, PackageName TEXT, PackageVersion TEXT);

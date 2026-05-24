@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thinkst - Package Proxy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #111;
+            background-color: #fbfbfc;
+            /* Creates the faint grid background */
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Layout */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 80px 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+        }
+
+        /* Header & Typography */
+        .logo-placeholder {
+            margin-bottom: 20px;
+        }
+        
+        .logo-placeholder svg {
+            height: 80px;
+            width: auto;
+        }
+
+        .brand-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .product-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #00d68f; /* Brand teal/green */
+            margin-bottom: 40px;
+            line-height: 1.1;
+        }
+
+        .description {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            color: #000;
+        }
+
+        /* Buttons & Actions */
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap; /* Helps on mobile */
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn svg {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .btn-primary {
+            background-color: #00c681;
+            color: #ffffff;
+            border: 1px solid #00c681;
+        }
+
+        .btn-primary:hover {
+            background-color: #00b073;
+            border-color: #00b073;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #111;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn-secondary:hover {
+            border-color: #ccc;
+            background-color: #f9f9f9;
+        }
+
+        .link-action {
+            display: inline-flex;
+            align-items: center;
+            color: #111;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            margin-left: 10px;
+            transition: color 0.2s ease;
+        }
+
+        .link-action:hover {
+            color: #00c681;
+        }
+
+        .link-action svg {
+            margin-left: 6px;
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo svg {
+            height: 24px;
+            width: auto;
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .product-title {
+                font-size: 40px;
+            }
+            .brand-title {
+                font-size: 24px;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .link-action {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="logo-placeholder">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 15L85 35L50 55L15 35L50 15Z" fill="#00d68f"/>
+                    <path d="M15 45L50 65L85 45" stroke="#00d68f" stroke-width="8" stroke-linejoin="round"/>
+                    <path d="M15 55L50 75L85 55" stroke="#a0e8cf" stroke-width="8" stroke-linejoin="round"/>
+                    <circle cx="65" cy="25" r="5" fill="#ff3b3b"/>
+                </svg>
+            </div>
+
+            <h2 class="brand-title">Thinkst</h2>
+            <h1 class="product-title">Package Proxy</h1>
+
+            <p class="description">
+                <strong>Package Proxy</strong> is a simple, open-source package proxy that gives you visibility and control over the software dependencies entering your environment.
+            </p>
+            <p class="description">
+                It sits between your developers and public package registries such as npm, PyPI, and Cargo, helping you reduce supply-chain risks from malicious packages.
+            </p>
+            <p class="description">
+                Deploy your own instance to Cloudflare in minutes.
+            </p>
+
+            <div class="actions">
+                <a href="https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fthinkst%2Fpackage-proxy" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.5 19C19.9853 19 22 16.9853 22 14.5C22 12.1641 20.2198 10.2427 17.9482 10.0245C17.4839 6.62311 14.5772 4 11 4C7.13401 4 4 7.13401 4 11C4 11.2386 4.01188 11.4746 4.03478 11.7065C2.31688 12.3813 1 14.0416 1 16C1 18.2091 2.79086 20 5 20H17.5V19Z" fill="white"/>
+                    </svg>
+                    Deploy to Cloudflare
+                </a>
+
+                <a href="https://github.com/thinkst/package-proxy" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" fill="#111"/>
+                    </svg>
+                    View Source
+                </a>
+
+                <a href="https://blog.thinkst.com" class="link-action">
+                    Read Our Blog
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        We also build 
+        <div class="footer-logo">
+            <a href="https://canary.tools"><img src="/canarylogo.svg" height="25" alt="Canary tools logo"/></a>
+        </div>
+    </footer>
+
+</body>
+</html>
