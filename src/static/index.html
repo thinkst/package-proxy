@@ -6,7 +6,7 @@
     <title>Thinkst - Package Proxy</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/avenir-lt-pro" rel="stylesheet">
     
     <style>
         /* CSS Reset & Base Styles */
@@ -17,7 +17,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Avenir LT Pro', sans-serif;
             color: #111;
             background-color: #fbfbfc;
             /* Creates the faint grid background */
@@ -54,7 +54,7 @@
         }
 
         .brand-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Avenir LT Pro', sans-serif;
             font-size: 32px;
             font-weight: 800;
             letter-spacing: 2px;
@@ -64,12 +64,16 @@
         }
 
         .product-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Avenir LT Pro', sans-serif;
             font-size: 56px;
             font-weight: 800;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: #00d68f; /* Brand teal/green */
+            color: #38D47F; /* Brand teal/green */
+            background: linear-gradient(45deg, rgb(0, 153, 128), rgb(0, 235, 121));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 40px;
             line-height: 1.1;
         }
@@ -110,14 +114,14 @@
         }
 
         .btn-primary {
-            background-color: #00c681;
+            background-color: #38D47F;
             color: #ffffff;
-            border: 1px solid #00c681;
+            border: 1px solid #38D47F;
         }
 
         .btn-primary:hover {
-            background-color: #00b073;
-            border-color: #00b073;
+            background-color: #38D47F;
+            border-color: #38D47F;
         }
 
         .btn-secondary {
@@ -144,7 +148,7 @@
         }
 
         .link-action:hover {
-            color: #00c681;
+            color: #38D47F;
         }
 
         .link-action svg {
@@ -169,7 +173,7 @@
         .footer-logo {
             display: inline-flex;
             align-items: center;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Avenir LT Pro', sans-serif;
             font-weight: 800;
             font-size: 18px;
             letter-spacing: 1px;
@@ -206,11 +210,11 @@
     <main class="main-content">
         <div class="container">
             <div class="logo-placeholder">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 15L85 35L50 55L15 35L50 15Z" fill="#00d68f"/>
-                    <path d="M15 45L50 65L85 45" stroke="#00d68f" stroke-width="8" stroke-linejoin="round"/>
-                    <path d="M15 55L50 75L85 55" stroke="#a0e8cf" stroke-width="8" stroke-linejoin="round"/>
-                    <circle cx="65" cy="25" r="5" fill="#ff3b3b"/>
+                <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M97.1192 62.5373L94.9302 61.183L57.1935 84.5159C52.7342 87.2732 47.2576 87.2732 42.7987 84.5159L5.06508 61.183L2.87608 62.5373C-0.948531 64.9108 -0.968842 70.8929 2.87608 73.2532L42.8022 97.9324C47.2615 100.69 52.7381 100.69 57.197 97.9324L97.1232 73.2532C100.968 70.893 100.948 64.9064 97.1232 62.5373H97.1192Z" fill="#38D47F" fill-opacity="0.5"/>
+                    <path d="M97.121 44.5904L94.9443 43.2448H94.9321L57.1953 66.5778C52.7361 69.3351 47.2595 69.3351 42.8006 66.5778L5.06695 43.2448H5.05474L2.87803 44.5904C-0.946577 46.9727 -0.966888 52.9593 2.87803 55.3195L5.06703 56.665L42.8038 79.998C47.263 82.7552 52.7396 82.7552 57.1985 79.998L94.9353 56.665L97.1243 55.3195C100.969 52.9593 100.949 46.9727 97.1243 44.5904H97.121Z" fill="#38D47F" fill-opacity="0.75"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M80.7169 2.92645C77.2116 2.92645 74.3906 5.75422 74.3906 9.26797C74.3906 12.7817 77.2116 15.6095 80.7169 15.6095C84.2223 15.6095 87.0737 12.7817 87.0737 9.26797C87.0737 5.75422 84.2223 2.92645 80.7169 2.92645Z" fill="#FF2F2F"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M42.8081 2.05796C47.2676 -0.68593 52.7239 -0.686041 57.1831 2.05796L71.6167 10.9515C72.4022 15.2773 76.1603 18.5364 80.7094 18.5365C81.6156 18.5365 82.4912 18.4047 83.3198 18.1634L97.1255 26.6703C100.958 29.0305 100.958 35.0259 97.1255 37.3861L94.9487 38.7318H94.937L62.4223 58.8343C63.2785 55.3228 63.1713 52.274 62.4038 50.2083C59.546 42.5034 65.2349 30.6543 65.27 30.5814C65.3032 30.5698 74.5646 27.3178 74.3882 25.9759C74.3253 25.35 65.4437 25.5481 65.4399 25.5482C43.8977 10.3508 35.5058 33.4443 33.5044 41.6849C31.2522 41.9292 27.3023 45.9086 23.6362 50.2123L5.06882 38.7318H5.05613L2.87937 37.3861L2.87742 37.3822C-0.955274 35.0219 -0.955193 29.0266 2.87742 26.6664L42.8081 2.05796Z" fill="#38D47F"/>
                 </svg>
             </div>
 
