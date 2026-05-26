@@ -35,5 +35,16 @@ These values can be changed in the KV store created upon deployment. The remaini
 
 It is possible to define a webhook URL (`webhook-url`) where some of the details of blocked downloads will be sent. This can be useful in e.g., an environment with Slack to provide context for why a package isn't installable.
 
+These configurations can be specified to logical units in your organization. If an organization is provided (the subdomain) then the 
+proxy will look in the KV store for `org-<ORGNAME>` (example, acme.packageproxy.dev would be configured in `org-acme`). Otherwise, the 
+`default` key configuration is used. If there is no configuration present, a default one will be created that contains the value in 
+`./scripts/default-kv.json`. This file can be edited and pushed to the KV store using the `npx wrangler kv` command, or via the 
+[web dashboard](https://dash.cloudflare.com).
+
 ## Observability
 Once the proxy has been used to install packages, it will log the user and organization into the created D1 database. These can be queried or explored via the [Cloudflare Dashboard](https://dash.cloudflare.com), `wrangler` CLI, or [API](https://developers.cloudflare.com/api/resources/d1).
+
+Some example queries include:
+- Return all the users that have installed a package (and each version): `SELECT DISTINCT UserId, CONCAT(PackageName, '@', PackageVersion) as Installed FROM Installs WHERE PackageName LIKE ?;` 
+- Fetch the total number of installed packages: `SELECT COUNT(*) FROM Installs;`
+- Fetch all installed package names: `SELECT DISTINCT PackageName FROM Installs;`
