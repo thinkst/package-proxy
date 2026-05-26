@@ -199,7 +199,7 @@ function determineReqType(origin : string, remainingPath : string, request : Req
 	if (request.method == "POST" && remainingPath.includes("/npm/v1/security/advisories/bulk")) {
 		return [RequestType.NpmAudit, remainingPath];
 	}
-	if (remainingPath == '/favicon.ico' || remainingPath.endsWith('.php') || remainingPath.endsWith('.xml')) {
+	if (remainingPath.endsWith('.php') || remainingPath.endsWith('.xml')) {
 		return [RequestType.Spam, ''];
 	}
 	if (origin.split('.').length == 4) {
@@ -247,7 +247,7 @@ function determineReqType(origin : string, remainingPath : string, request : Req
 		return [RequestType.NpmSearch, remainingPath];
 	if (/\/\-\/.*\.tgz$/.test(remainingPath)) // Special case where loading files from a package-lock.json file
 		return [RequestType.NpmFiles, remainingPath];
-	if (request.method == "GET" && (remainingPath == '/' || remainingPath == '/canarylogo.svg'))
+	if (request.method == "GET" && (remainingPath == '/' || remainingPath == '/canarylogo.svg' || remainingPath == '/favicon.ico' || remainingPath == '/Thinkstera.otf'))
 		return [RequestType.BrowseRoot, remainingPath];
 	if (request.method == "GET")
 		return [RequestType.NpmMetadata, remainingPath];

@@ -10,6 +10,10 @@
     
     <style>
         /* CSS Reset & Base Styles */
+        @font-face {
+            font-family: "Thinkstera";
+            src: url("/Thinkstera.otf") format("opentype");
+        }
         * {
             box-sizing: border-box;
             margin: 0;
@@ -54,8 +58,8 @@
         }
 
         .brand-title {
-            font-family: 'Avenir LT Pro', sans-serif;
-            font-size: 32px;
+            font-family: 'Thinkstera', sans-serif;
+            font-size: 2rem;
             font-weight: 800;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -65,7 +69,7 @@
 
         .product-title {
             font-family: 'Avenir LT Pro', sans-serif;
-            font-size: 56px;
+            font-size: 3.5rem;
             font-weight: 800;
             letter-spacing: 3px;
             text-transform: uppercase;
@@ -79,7 +83,7 @@
         }
 
         .description {
-            font-size: 18px;
+            font-size: 1.125rem;
             line-height: 1.6;
             margin-bottom: 24px;
             color: #000;
@@ -101,7 +105,7 @@
             border-radius: 6px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 1rem;
             transition: all 0.2s ease;
             cursor: pointer;
         }
@@ -120,7 +124,8 @@
         }
 
         .btn-primary:hover {
-            background-color: #38D47F;
+            background-color: rgb(0, 153, 107);
+            border: 1px solid #38D47F;
             border-color: #38D47F;
         }
 
@@ -142,7 +147,7 @@
             color: #111;
             text-decoration: none;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 1rem;
             margin-left: 10px;
             transition: color 0.2s ease;
         }
@@ -162,7 +167,7 @@
         footer {
             padding: 40px 20px;
             text-align: center;
-            font-size: 14px;
+            font-size: .9rem;
             color: #111;
             display: flex;
             justify-content: center;
@@ -175,7 +180,7 @@
             align-items: center;
             font-family: 'Avenir LT Pro', sans-serif;
             font-weight: 800;
-            font-size: 18px;
+            font-size: 1.125rem;
             letter-spacing: 1px;
         }
 
@@ -188,10 +193,10 @@
         /* Responsive Design */
         @media (max-width: 600px) {
             .product-title {
-                font-size: 40px;
+                font-size: 2.25rem;
             }
             .brand-title {
-                font-size: 24px;
+                font-size: 1.5rem;
             }
             .actions {
                 flex-direction: column;
