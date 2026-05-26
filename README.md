@@ -6,16 +6,16 @@ This is a Cloudflare Worker that is set as either `uv/pip`'s `index-url`, `cargo
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fthinkst%2Fpackage-proxy)
 
 #### Client configuration
-With the variable `DOMAIN` set to the [sub-]domain where the Worker is running,
-please use the following commands to configure your package manager client:
 
-`pip`: `pip config set global.index-url https://$USER@$DOMAIN$/pypi/`
+There's a handy setup script for MacOS in `./scripts/SetupPackageProxy.sh`, simply edit `PACKAGE_PROXY_HOST` with your [sub]-domain of the Cloudflare worker and distribute across your fleet.
 
-`uv`: `echo "index-url = \"https://$USER@$DOMAIN/pypi/\"" >> ~/.config/uv/uv.toml`
+Alternatively, here are the manual steps:
 
-`cargo`: `echo -e "[registries]\npackage-proxy = { index = \"sparse+https://$USER@$DOMAIN/\" }\n[source.crates-io]\nreplace-with = \"package-proxy\"" >> ~/.cargo/config.toml`
-
-`npm`: `npm config set registry https://$DOMAIN && npm config set //$DOMAIN/:_auth=$(echo -n "$USER:" | base64)`
+1. Set the variable `DOMAIN` to the [sub-]domain where the Worker is running
+2. **pip**: `pip config set global.index-url https://$USER@$DOMAIN$/pypi/`
+3. **uv**: `echo "index-url = \"https://$USER@$DOMAIN/pypi/\"" >> ~/.config/uv/uv.toml`
+4. **cargo**: `echo -e "[registries]\npackage-proxy = { index = \"sparse+https://$USER@$DOMAIN/\" }\n[source.crates-io]\nreplace-with = \"package-proxy\"" >> ~/.cargo/config.toml`
+5. **npm**: `npm config set registry https://$DOMAIN && npm config set //$DOMAIN/:_auth=$(echo -n "$USER:" | base64)`
 
 ### Usage
 
