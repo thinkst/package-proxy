@@ -1,6 +1,8 @@
 export { handlePypiMetadata, handlePypiFetch };
 import { ConfigProps, fireWebhook, checkJson, saveKv, Params } from "./index";
 
+const PURLTYPE = 'pypi';
+
 function parsePyPackageVersion(pathname : string): string[] {
 	const pieces = pathname.split("/");
 	const whl = pieces[pieces.length - 1].split("-");
@@ -9,7 +11,7 @@ function parsePyPackageVersion(pathname : string): string[] {
 
 function removePyBlockedVersions(body : string, packageName : string, blockList : Map<string, string | string[]>): string {
 	let pkgdata = JSON.parse(body);
-	const bversions = blockList.get(packageName) ?? [];
+	const bversions = blockList.get(PURLTYPE + '/' + packageName) ?? [];
 	for (var i = 0; i < bversions.length; i++) {
 		const idx = pkgdata.versions.indexOf(bversions[i]);
 		if (idx >= 0) {
@@ -108,18 +110,18 @@ function removePyChangedIntegrityMetadata(body : string): string {
 		//console.log(`Yanking ${yanked_versions.size} versions!`);
 		yanked_versions.forEach((v) => {
 			//console.log(v);
-			if (Params.config.blockList.has(pName) && Params.config.blockList.get(pName)?.indexOf(v) == -1) {
-				const newBl = (Params.config.blockList.get(pName) ?? []);
+			if (Params.config.blockList.has(PURLTYPE + '/' + pName) && Params.config.blockList.get(PURLTYPE + '/' + pName)?.indexOf(v) == -1) {
+				const newBl = (Params.config.blockList.get(PURLTYPE + '/' + pName) ?? []);
 				if (newBl == "ALL") {
 					console.log("Something went wrong and we're checking ingrity on a blocked package");
 					return JSON.stringify(pkgdata);
 				}
 				if (typeof (newBl) === "object") {
-					Params.config.blockList.set(pName, newBl.concat([v]));
+					Params.config.blockList.set(PURLTYPE + '/' + pName, newBl.concat([v]));
 					Params.ctx?.waitUntil(saveKv());
 				}
-			} else if (!Params.config.blockList.has(pName)) {
-				Params.config.blockList.set(pName, [v]);
+			} else if (!Params.config.blockList.has(PURLTYPE + '/' + pName)) {
+				Params.config.blockList.set(PURLTYPE + '/' + pName, [v]);
 				Params.ctx?.waitUntil(saveKv());
 			}
 		});
@@ -193,8 +195,8 @@ async function handlePypiMetadata(pypiPath : string, filePrefix : string): Promi
 		let body = await response.text();
 		if (!checkJson(body))
 			return new Response("Received invalid upstream JSON.", { status: 400 });
-		if (Params.config.blockList.has(packageName)) {
-			if (Params.config.blockList.get(packageName) == "ALL") {
+		if (Params.config.blockList.has(PURLTYPE + '/' + packageName)) {
+			if (Params.config.blockList.get(PURLTYPE + '/' + packageName) == "ALL") {
 				return new Response("Not found.", { status: 404 });
 			} else {
 				body = removePyBlockedVersions(body, packageName, Params.config.blockList);
@@ -207,7 +209,7 @@ async function handlePypiMetadata(pypiPath : string, filePrefix : string): Promi
 		if (!Params.config.ALLOW_CHANGED_PUBLISHER) {
 			body = removePyChangedIntegrityMetadata(body);
 		}
-		body = enforcePyMinAge(body, Params.config.MIN_AGE_DAYS, Params.config.allowList.get(packageName) || []);
+		body = enforcePyMinAge(body, Params.config.MIN_AGE_DAYS, Params.config.allowList.get(PURLTYPE + '/' + packageName) || []);
 		//console.log(body);
 		if (Params.config.REWRITE_DOWNLOAD_URLS) {
 			// Rewrite URLs in the response body to go through the Cloudflare Worker
@@ -221,7 +223,7 @@ async function handlePypiMetadata(pypiPath : string, filePrefix : string): Promi
 
 async function handlePypiFetch(path : string): Promise<[Response, string, string]> {
 	const [pName, pVer] = parsePyPackageVersion(path);
-	if (Params.config.blockList.has(pName) && (Params.config.blockList.get(pName) == "ALL" || (Params.config.blockList.get(pName) ?? []).indexOf(pVer) >= 0)) {
+	if (Params.config.blockList.has(PURLTYPE + '/' + pName) && (Params.config.blockList.get(PURLTYPE + '/' + pName) == "ALL" || (Params.config.blockList.get(PURLTYPE + '/' + pName) ?? []).indexOf(pVer) >= 0)) {
 		console.log(`Got a direct download request for ${pName}@${pVer} -- returning 404`);
 		fireWebhook(Params.config.webhookUrl, `pypi:${pName}@${pVer}`, "This package/version is on the organization's block list, please contact your admin if this package is needed.");
 		return [new Response('Package/version not found', { status: 404 }), pName, pVer];

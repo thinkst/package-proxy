@@ -1,6 +1,8 @@
 export { handleCargoMetadata, handleCargoFetch };
 import { ConfigProps, fireWebhook } from "./index";
 
+const PURLTYPE = 'cargo';
+
 function checkAge(row : string, now_ms : number, min_ms : number, allowedVers : string[]) {
     if (row != '') {
         const parsed = JSON.parse(row);
@@ -70,7 +72,7 @@ async function handleCargoMetadata(origin : string, remainingPath : string, file
     } else if (remainingPath == '/favicon.ico') {
         return new Response('Not found', { status: 404 })
     }
-    if (config.blockList.has(pkgName) && config.blockList.get(pkgName) == "ALL") {
+    if (config.blockList.has(PURLTYPE + '/' + pkgName) && config.blockList.get(PURLTYPE + '/' + pkgName) == "ALL") {
         return new Response('Package/version not found', {status: 404});
     }
     const upstream = await fetch(upstreamUrl + remainingPath, {cf: { cacheEverything: true, cacheTtl: 3600 }});
@@ -79,12 +81,12 @@ async function handleCargoMetadata(origin : string, remainingPath : string, file
 
     let body = await upstream.text();
 
-    if (config.blockList.has(pkgName) && config.blockList.get(pkgName) == 'ALL')
+    if (config.blockList.has(PURLTYPE + '/' + pkgName) && config.blockList.get(PURLTYPE + '/' + pkgName) == 'ALL')
         return new Response('Not found', { status: 404 })
-    if (config.blockList.has(pkgName))
-        body = enforceBlocklist(body, config.blockList.get(pkgName) ?? []);
+    if (config.blockList.has(PURLTYPE + '/' + pkgName))
+        body = enforceBlocklist(body, config.blockList.get(PURLTYPE + '/' + pkgName) ?? []);
     if (config.MIN_AGE_DAYS > 0)
-        body = enforceMinAge(body, config.MIN_AGE_DAYS, config.allowList.get(pkgName) || []);
+        body = enforceMinAge(body, config.MIN_AGE_DAYS, config.allowList.get(PURLTYPE + '/' + pkgName) || []);
     if (!config.ALLOW_YANKED)
         body = enforceYanked(body);
 

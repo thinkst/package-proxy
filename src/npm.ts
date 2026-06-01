@@ -6,6 +6,7 @@ const REGISTRIES : { [key: string]: string} = {
 	default: "https://registry.npmjs.org",
 	'@fortawesome': "https://npm.fontawesome.com"
 };
+const PURLTYPE = 'npm';
 
 async function handleNpmAudit(request : Request): Promise<Response> {
 		const npmUrl = 'https://registry.npmjs.org/-/npm/v1/security/advisories/bulk';
@@ -25,7 +26,7 @@ async function handleNpmFetch(path : string): Promise<[Response, string, string]
 		const [pName, pVer] = parseNpmPackageVersion(path);
 		//console.log(pName);
 		let options : RequestInit<RequestInitCfProperties> = {cf: {cacheEverything: true, cacheTtl: 3600*6}};
-		if (Params.config.blockList.has(pName) && (Params.config.blockList.get(pName) == "ALL" || (Params.config.blockList.get(pName) ?? []).indexOf(pVer) >= 0)) {
+		if (Params.config.blockList.has(PURLTYPE + '/' + pName) && (Params.config.blockList.get(PURLTYPE + '/' + pName) == "ALL" || (Params.config.blockList.get(PURLTYPE + '/' + pName) ?? []).indexOf(pVer) >= 0)) {
 			console.log(`Got a direct download request for ${pName}@${pVer} -- returning 404`);
 			fireWebhook(Params.config.webhookUrl, `npm:${pName}@${pVer}`, "This package/version is on the organization's block list, please contact your admin if this package is needed.");
 			return [new Response('Package/version not found', { status: 404 }), pName, pVer];
@@ -90,7 +91,7 @@ function removeNpmChangedIntegrityMetadata(body : string): string {
 
 function removeNpmBlockedVersions(body : string, packageName : string, blockList : Map<string, string | string[]>): string {
 	let pkgdata = JSON.parse(body);
-	const bversions = blockList.get(packageName) ?? [];
+	const bversions = blockList.get(PURLTYPE + '/' + packageName) ?? [];
 	for (var i = 0; i < bversions.length; i++) {
 		//console.log(`Deleting ${bversions[i]} from ${packageName}`);
 		delete pkgdata.time[bversions[i]];
@@ -161,8 +162,8 @@ async function handleNpmMetadata(path : string, filePrefix : string, recentAudit
 	let body = await response.text();
 	if (!checkJson(body))
 		return new Response("Received invalid upstream JSON.", { status: 400 });
-	if (Params.config.blockList.has(packageName)) {
-		if (Params.config.blockList.get(packageName) == "ALL") {
+	if (Params.config.blockList.has(PURLTYPE + '/' + packageName)) {
+		if (Params.config.blockList.get(PURLTYPE + '/' + packageName) == "ALL") {
 			return new Response("Package/version blocked.", { status: 404 });
 		} else {
 			body = removeNpmBlockedVersions(body, packageName, Params.config.blockList);
@@ -171,7 +172,7 @@ async function handleNpmMetadata(path : string, filePrefix : string, recentAudit
 	}
 	if (!(recentAudit && Params.config.ALLOW_AUDIT_OVERRIDE)) {
 		//console.log("Checking min age for " + packageName);
-		body = enforceNpmMinAge(body, Params.config.MIN_AGE_DAYS, Params.config.allowList.get(packageName) || []);
+		body = enforceNpmMinAge(body, Params.config.MIN_AGE_DAYS, Params.config.allowList.get(PURLTYPE + '/' + packageName) || []);
 	}
 	if (!Params.config.ALLOW_CHANGED_PUBLISHER) {
 		body = removeNpmChangedIntegrityMetadata(body);

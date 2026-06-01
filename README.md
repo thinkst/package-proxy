@@ -26,7 +26,7 @@ The proxy is defaultly configured to prevent the installation of packages that m
 - Releases newer than 10 days ago (`MIN_AGE_DAYS`)
 - Version is not "yanked" (`ALLOW_YANKED`)
 - Version is not published in a less-robust manner than the previous release (`ALLOW_CHANGED_PUBLISHER`)
-- Specific known-bad releases such as `axios==0.30.4`, or `base-x-64: ALL` (`blocklist`)
+- Specific known-bad releases (prefaced with [PURL type](https://github.com/package-url/purl-spec)) such as `npm/axios==0.30.4`, or `pypi/base-x-64: ALL` (`blocklist`)
 
 These values can be changed in the KV store created upon deployment. The remaining configuration options are:
 - If `npm audit` can bypass the minimum age (`ALLOW_AUDIT_OVERRIDE`)

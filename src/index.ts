@@ -6,11 +6,9 @@
  */
 
 import { AuditTrackerObject } from "./auditworker";
-//import { DepTrackerObject } from "./depworker"
 import { handleNpmMetadata, handleNpmAudit, handleNpmFetch } from "./npm";
 import { handlePypiMetadata, handlePypiFetch } from "./pypi";
 import { handleCargoMetadata, handleCargoFetch } from "./cargo";
-//import { getPackageDownloadCount } from "./downloadcount";
 
 export { AuditTrackerObject, ConfigProps, RequestParams, Params, fireWebhook, checkJson, saveKv };
 
@@ -80,23 +78,47 @@ function checkJson(body : string): boolean {
 }
 
 async function initKv() {
+	let defConfig;
 	if (Params.orgId != null && Params.orgId != "") {
 		const oConfig = await Params.env?.PACKAGE_PROXY_CONFIG.get("org-" + Params.orgId);
-		if (oConfig != null) {
+		if (oConfig != null && oConfig != "" && oConfig != "{}") {
 			const conf = JSON.parse(oConfig);
-			Params.config.MIN_AGE_DAYS = conf['MIN_AGE_DAYS'];
-			Params.config.ALLOW_YANKED = conf['ALLOW_YANKED'];
-			Params.config.ALLOW_CHANGED_PUBLISHER = conf['ALLOW_CHANGED_PUBLISHER'];
-			Params.config.ALLOW_AUDIT_OVERRIDE = conf['ALLOW_AUDIT_OVERRIDE'];
-			Params.config.webhookUrl = conf['webhook-url'];
-			Params.config.REWRITE_DOWNLOAD_URLS = conf['REWRITE_DOWNLOAD_URLS'];
-			Params.config.approvalWebhookUrl = conf['approval-webhook-url'];
-			Object.keys(conf.blocklist).forEach(e => Params.config.blockList.set(e, conf.blocklist[e]));
-			Object.keys(conf.allowlist).forEach(e => Params.config.allowList.set(e, conf.allowlist[e]));
+			if (!isNaN(Number(conf['MIN_AGE_DAYS'])))
+				Params.config.MIN_AGE_DAYS = conf['MIN_AGE_DAYS'];
+			Params.config.ALLOW_YANKED = conf['ALLOW_YANKED'] ?? Params.config.ALLOW_YANKED;
+			Params.config.ALLOW_CHANGED_PUBLISHER = conf['ALLOW_CHANGED_PUBLISHER'] ?? Params.config.ALLOW_CHANGED_PUBLISHER;
+			Params.config.ALLOW_AUDIT_OVERRIDE = conf['ALLOW_AUDIT_OVERRIDE'] ?? Params.config.ALLOW_AUDIT_OVERRIDE;
+			Params.config.webhookUrl = conf['webhook-url'] ?? Params.config.webhookUrl;
+			Params.config.REWRITE_DOWNLOAD_URLS = conf['REWRITE_DOWNLOAD_URLS'] ?? Params.config.REWRITE_DOWNLOAD_URLS;
+			Params.config.approvalWebhookUrl = conf['approval-webhook-url'] ?? Params.config.approvalWebhookUrl;
+			try {
+				Object.keys(conf.blocklist).forEach(e => Params.config.blockList.set(e, conf.blocklist[e]));
+				Object.keys(conf.allowlist).forEach(e => Params.config.allowList.set(e, conf.allowlist[e]));
+			} catch (e) {
+				console.log(`Error parsing allow/block-lists: ${e}`);
+			}
 			return;
+		} else {
+			console.log(`No KV configuration for ${"org-" + Params.orgId}... Creating one.`);
+			defConfig = await Params.env?.PACKAGE_PROXY_CONFIG.get("default");
+			if (defConfig != null) {
+				await Params.env?.PACKAGE_PROXY_CONFIG.put("org-" + Params.orgId, defConfig);
+			} else {
+				await Params.env?.PACKAGE_PROXY_CONFIG.put("org-" + Params.orgId, JSON.stringify({
+					MIN_AGE_DAYS: Params.config.MIN_AGE_DAYS,
+					ALLOW_CHANGED_PUBLISHER: Params.config.ALLOW_CHANGED_PUBLISHER,
+					ALLOW_YANKED: Params.config.ALLOW_YANKED,
+					ALLOW_AUDIT_OVERRIDE: Params.config.ALLOW_AUDIT_OVERRIDE,
+					REWRITE_DOWNLOAD_URLS: Params.config.REWRITE_DOWNLOAD_URLS,
+					"webhook-url": "",
+					"approval-webhook-url": "",
+					blocklist: {},
+					allowlist: {}
+				}));
+			}
 		}
 	}
-	const defConfig = await Params.env?.PACKAGE_PROXY_CONFIG.get("default");
+	defConfig = await Params.env?.PACKAGE_PROXY_CONFIG.get("default");
 	if (defConfig == null) {
 		console.log('No default configuration in KV... Creating one.');
 		await Params.env?.PACKAGE_PROXY_CONFIG.put("default", JSON.stringify({
@@ -109,19 +131,24 @@ async function initKv() {
 			"approval-webhook-url": "",
 			blocklist: {},
 			allowlist: {}
-		}))
+		}));
 		return;
 	}
 	const conf = JSON.parse(defConfig);
-	Params.config.MIN_AGE_DAYS = conf['MIN_AGE_DAYS'];
-	Params.config.ALLOW_YANKED = conf['ALLOW_YANKED'];
-	Params.config.ALLOW_CHANGED_PUBLISHER = conf['ALLOW_CHANGED_PUBLISHER'];
-	Params.config.ALLOW_AUDIT_OVERRIDE = conf['ALLOW_AUDIT_OVERRIDE'];
-	Params.config.REWRITE_DOWNLOAD_URLS = conf['REWRITE_DOWNLOAD_URLS'];
-	Params.config.webhookUrl = conf['webhook-url'];
-	Params.config.approvalWebhookUrl = conf['approval-webhook-url'];
-	Object.keys(conf.blocklist).forEach(e => Params.config.blockList.set(e, conf.blocklist[e]));
-	Object.keys(conf.allowlist).forEach(e => Params.config.allowList.set(e, conf.allowlist[e]));
+	if (!isNaN(Number(conf['MIN_AGE_DAYS'])))
+		Params.config.MIN_AGE_DAYS = conf['MIN_AGE_DAYS'];
+	Params.config.ALLOW_YANKED = conf['ALLOW_YANKED'] ?? Params.config.ALLOW_YANKED;
+	Params.config.ALLOW_CHANGED_PUBLISHER = conf['ALLOW_CHANGED_PUBLISHER'] ?? Params.config.ALLOW_CHANGED_PUBLISHER;
+	Params.config.ALLOW_AUDIT_OVERRIDE = conf['ALLOW_AUDIT_OVERRIDE'] ?? Params.config.ALLOW_AUDIT_OVERRIDE;
+	Params.config.webhookUrl = conf['webhook-url'] ?? Params.config.webhookUrl;
+	Params.config.REWRITE_DOWNLOAD_URLS = conf['REWRITE_DOWNLOAD_URLS'] ?? Params.config.REWRITE_DOWNLOAD_URLS;
+	Params.config.approvalWebhookUrl = conf['approval-webhook-url'] ?? Params.config.approvalWebhookUrl;
+	try {
+		Object.keys(conf.blocklist).forEach(e => Params.config.blockList.set(e, conf.blocklist[e]));
+		Object.keys(conf.allowlist).forEach(e => Params.config.allowList.set(e, conf.allowlist[e]));
+	} catch (e) {
+		console.log(`Error parsing allow/block-lists: ${e}`);
+	}
 }
 
 async function saveKv() {
@@ -247,7 +274,7 @@ function determineReqType(origin : string, remainingPath : string, request : Req
 		return [RequestType.NpmSearch, remainingPath];
 	if (/\/\-\/.*\.tgz$/.test(remainingPath)) // Special case where loading files from a package-lock.json file
 		return [RequestType.NpmFiles, remainingPath];
-	if (request.method == "GET" && (remainingPath == '/' || remainingPath == '/canarylogo.svg' || remainingPath == '/favicon.ico' || remainingPath == '/Thinkstera.otf'))
+	if (request.method == "GET" && remainingPath == '/')
 		return [RequestType.BrowseRoot, remainingPath];
 	if (request.method == "GET")
 		return [RequestType.NpmMetadata, remainingPath];
