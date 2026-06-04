@@ -78,7 +78,7 @@ configure_pip() {
         log "pip index-url already configured, skipping"
     else
         log "Setting pip index-url..."
-        run_as_user python3 -m pip config set global.index-url "https://$CURRENT_USER@$PACKAGE_PROXY_HOST/pypi/simple/"
+        run_as_user python3 -m pip config set global.index-url "https://$CURRENT_USER@$PACKAGE_PROXY_HOST/pypi/"
         log "pip index-url configured"
     fi
 }
@@ -138,7 +138,7 @@ configure_cargo() {
     cat >> "$cargo_config_file" << EOF
 
 [registries]
-package-proxy = { index = "sparse+https://$CURRENT_USER@cargo.$PACKAGE_PROXY_HOST/" }
+package-proxy = { index = "sparse+https://$CURRENT_USER@$PACKAGE_PROXY_HOST/cargo-rs/" }
 
 [source.crates-io]
 replace-with = "package-proxy"
