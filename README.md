@@ -1,6 +1,6 @@
 ## Package Proxy
 
-This is a Cloudflare Worker that is set as either `uv/pip`'s `index-url`, `cargo`'s `registry` or `npm`'s `registry` and seamlessly proxies requests to the official repositories. For more information please check out the [blog post](#).
+This is a Cloudflare Worker that is set as either `uv/pip`'s `index-url`, `cargo`'s `registry` or `npm`'s `registry` and seamlessly proxies requests to the official repositories. For more information please check out the [blog post](https://blog.thinkst.com/2026/06/introducing-package-proxy.html).
 
 ### Installation
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https%3A%2F%2Fgithub.com%2Fthinkst%2Fpackage-proxy)
