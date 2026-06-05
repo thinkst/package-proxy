@@ -55,7 +55,7 @@ The rules live in the KV store. In order to change them manually:
 3. Click on the KV store linked to your Package Proxy
 4. Click on the "KV Pairs" tab
 5. Click "View" on the `org-<ORGNAME>` key, then "Edit"
-6. Update the configuration value you want to change, then click "Save". The change will be immediately avaiable (within a second or two) to the Worker, there is no further action necessaru.
+6. Update the configuration value you want to change, then click "Save". The change will be immediately avaiable (within a second or two) to the Worker, there is no further action necessary.
 
 One could also use wrangler:
 
