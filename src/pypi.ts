@@ -1,5 +1,6 @@
 export { handlePypiMetadata, handlePypiFetch };
 import { ConfigProps, fireWebhook, checkJson, saveKv, Params } from "./index";
+import { eq } from "@renovatebot/pep440";
 
 const PURLTYPE = 'pypi';
 
@@ -12,15 +13,14 @@ function parsePyPackageVersion(pathname : string): string[] {
 function removePyBlockedVersions(body : string, packageName : string, blockList : Map<string, string | string[]>): string {
 	let pkgdata = JSON.parse(body);
 	const bversions = blockList.get(PURLTYPE + '/' + packageName) ?? [];
-	for (var i = 0; i < bversions.length; i++) {
-		const idx = pkgdata.versions.indexOf(bversions[i]);
-		if (idx >= 0) {
-			//console.log(`Slicing ${bversions[i]} from ${packageName}!`);
-			pkgdata.versions.splice(idx, 1); // Remove version from the versions array
-		}
-		// Remove all matching files from the files list
-		pkgdata.files = pkgdata.files.filter((elem: { filename : string }) => elem.filename.indexOf(packageName + '-' + bversions[i]) != 0);
-	}
+	const pypiRegex = /^(.*?)-(\d[^-]*?)(?:-(?:(?:\d[^-]*)|py\d.*))?\.(?:whl|tar\.gz|zip|tgz|tar\.bz2)$/i;
+	const inBlist = (ver : string) => bversions.some((e : string) => eq(e, ver));
+	// Remove version from the versions array
+	pkgdata.versions = pkgdata.versions.filter((v : string) => !inBlist(v));
+	// Remove all matching files from the files list
+	//pkgdata.files.forEach((e) => console.log(`${e.filename} - ${e.filename.match(pypiRegex)[2]}`));
+	pkgdata.files = pkgdata.files.filter((elem: { filename : string }) => !inBlist(elem.filename.match(pypiRegex) != null ? elem.filename.match(pypiRegex)[2] : ""));
+
 	return JSON.stringify(pkgdata);
 }
 
@@ -113,7 +113,7 @@ function removePyChangedIntegrityMetadata(body : string): string {
 			if (Params.config.blockList.has(PURLTYPE + '/' + pName) && Params.config.blockList.get(PURLTYPE + '/' + pName)?.indexOf(v) == -1) {
 				const newBl = (Params.config.blockList.get(PURLTYPE + '/' + pName) ?? []);
 				if (newBl == "ALL") {
-					console.log("Something went wrong and we're checking ingrity on a blocked package");
+					console.log("Something went wrong and we're checking integrity on a blocked package");
 					return JSON.stringify(pkgdata);
 				}
 				if (typeof (newBl) === "object") {
