@@ -6,15 +6,19 @@
     "deploy": "npm run db:migrations:apply && wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
     "test": "vitest",
     "cf-typegen": "wrangler types",
     "db:migrations:apply": "wrangler d1 migrations apply install_logs --remote"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.16.9",
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
     "@types/node": "^25.5.0",
     "typescript": "^5.5.2",
     "vitest": "^4.1.2",
     "wrangler": "^4.80.0"
+  },
+  "dependencies": {
+    "@renovatebot/pep440": "^5.0.1"
   }
 }
