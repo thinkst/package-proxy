@@ -88,17 +88,21 @@ async function checkIntegrityAPI(requestedPath : string, previousVersionPath : s
 // 	}
 // }
 
-function removePyChangedIntegrityMetadata(body : string): string {
+function removePyChangedIntegrityMetadata(body : string, allowedVers : string[]): string {
 	let pkgdata = JSON.parse(body);
 	const pName = pkgdata.name;
 	let yanked_versions = new Set<string>();
 	let yanked_files = new Set<string>();
 	let last_has_prov = false;
 	for (var i = 0; i < pkgdata.files.length; i++) {
-		if (pkgdata.files[i].provenance == null && last_has_prov)
-			yanked_files.add(pkgdata.files[i].filename);
-		if (pkgdata.files[i].provenance == null && last_has_prov && pkgdata.files[i].filename.endsWith(".whl")) // TODO make this more graceful
-			yanked_versions.add(pkgdata.files[i].filename.split('-')[1]);
+		if (pkgdata.files[i].provenance == null && last_has_prov) {
+			if (!allowedVers.includes(pkgdata.files[i].filename.split('-')[1].replace(/\.tar\.gz$/, '')))
+				yanked_files.add(pkgdata.files[i].filename);
+		}
+		if (pkgdata.files[i].provenance == null && last_has_prov && pkgdata.files[i].filename.endsWith(".whl")) { // TODO make this more graceful
+			if (!allowedVers.includes(pkgdata.files[i].filename.split('-')[1]))
+				yanked_versions.add(pkgdata.files[i].filename.split('-')[1]);
+		}
 		if (pkgdata.files[i].provenance != null)
 			last_has_prov = true;
 		if (pkgdata.files[i].provenance == null && pkgdata.files[i].filename.endsWith(".tar.gz"))
@@ -208,7 +212,7 @@ async function handlePypiMetadata(pypiPath : string, filePrefix : string): Promi
 			body = removePyYanked(body);
 		}
 		if (!Params.config.ALLOW_CHANGED_PUBLISHER) {
-			body = removePyChangedIntegrityMetadata(body);
+			body = removePyChangedIntegrityMetadata(body, Params.config.allowList.get(PURLTYPE + '/' + packageName) || []);
 		}
 		body = enforcePyMinAge(body, Params.config.MIN_AGE_DAYS, Params.config.allowList.get(PURLTYPE + '/' + packageName) || []);
 		//console.log(body);
