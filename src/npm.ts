@@ -1,6 +1,6 @@
-import { fireWebhook, checkJson, Params } from ".";
-
-export { handleNpmMetadata, handleNpmAudit, handleNpmFetch };
+import semver from "semver";
+import { checkJson, fireWebhook, Params } from ".";
+export { handleNpmAudit, handleNpmFetch, handleNpmMetadata };
 
 const REGISTRIES : { [key: string]: string} = {
 	default: "https://registry.npmjs.org",
@@ -125,11 +125,35 @@ function getDepsForPackage(body : string): string[] {
 }
 
 function fixLatest(body : string): string {
-	let pkgdata = JSON.parse(body);
-	const vers = Object.keys(pkgdata.versions);
-	if (Object.keys(pkgdata).includes("dist-tags"))
-		pkgdata["dist-tags"]["latest"] = vers.pop();
-	return JSON.stringify(pkgdata);
+  let pkgdata = JSON.parse(body);
+  // Early return if there are no dist-tags defined
+  if (pkgdata["dist-tags"] === undefined) {
+	return body;
+  }
+  const availableVersions: string[] = Object.keys(pkgdata.versions);
+  const originalLatest: string | undefined = pkgdata["dist-tags"]["latest"];
+  // If the original latest version passes checks, use that
+  if (
+    originalLatest !== undefined &&
+    availableVersions.includes(originalLatest)
+  ) {
+    return body;
+  }
+  // Filter out pre-releases
+  const stableVersions: string[] = availableVersions.filter(
+    (value: string): boolean => {
+      return semver.prerelease(value) === null;
+    },
+  );
+  // Sort by version
+  stableVersions.sort(semver.compare);
+  pkgdata["dist-tags"]["latest"] =
+    stableVersions.length > 0
+    ? // Try to use a stable version
+    stableVersions.pop()
+    : // Fallback to the latest version
+    availableVersions.pop();
+  return JSON.stringify(pkgdata);
 }
 
 async function handleNpmMetadata(path : string, filePrefix : string, recentAudit : boolean): Promise<Response> {
