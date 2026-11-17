@@ -9,6 +9,7 @@ import { AuditTrackerObject } from "./auditworker";
 import { handleNpmMetadata, handleNpmAudit, handleNpmFetch } from "./npm";
 import { handlePypiMetadata, handlePypiFetch } from "./pypi";
 import { handleCargoMetadata, handleCargoFetch } from "./cargo";
+import { handleMiseApiGithubCom, handleMiseGithubFetch } from "./mise";
 
 export { AuditTrackerObject, ConfigProps, RequestParams, Params, fireWebhook, checkJson, saveKv };
 
@@ -37,6 +38,9 @@ enum RequestType {
 	NpmFiles,
 	NpmAudit,
 	NpmSearch,
+	MiseApiGithubCom,
+	MiseGithubCom,
+	MiseRawGithubusercontentCom,
 	ApprovePackage,
 	Unknown,
 	Spam,
@@ -270,6 +274,12 @@ function determineReqType(origin : string, remainingPath : string, request : Req
 		return [RequestType.PypiFiles, remainingPath.replace('/files', '')];
 	if (remainingPath.startsWith('/npmfiles/'))
 		return [RequestType.NpmFiles, remainingPath.replace('/npmfiles', '')];
+	if (remainingPath.startsWith('/mise/api-github-com/'))
+		return [RequestType.MiseApiGithubCom, remainingPath.replace('/mise/api-github-com', '')];
+	if (remainingPath.startsWith('/mise/raw-githubusercontent-com/'))
+		return [RequestType.MiseRawGithubusercontentCom, remainingPath.replace('/mise/raw-githubusercontent-com', '')];
+	if (remainingPath.startsWith('/mise/github-com/'))
+		return [RequestType.MiseGithubCom, remainingPath.replace('/mise/github-com', '')];
 	if (remainingPath == '/-/v1/search')
 		return [RequestType.NpmSearch, remainingPath];
 	if (/\/\-\/.*\.tgz$/.test(remainingPath)) // Special case where loading files from a package-lock.json file
@@ -311,7 +321,7 @@ async function handleRequest(request : Request, env : Env, ctx : ExecutionContex
 	}
 	// If we're running from an org-specific subdomain, then we want usernames via HTTP auth
 	if (REQUIRE_TOKEN_AUTH && url.origin.split('.').length >= 3) {
-		if (!authorization && reqType != RequestType.CargoFiles && reqType != RequestType.ApprovePackage && reqType != RequestType.NpmFiles && reqType != RequestType.PypiFiles) {
+		if (!authorization && reqType != RequestType.CargoFiles && reqType != RequestType.ApprovePackage && reqType != RequestType.NpmFiles && reqType != RequestType.PypiFiles && reqType != RequestType.MiseApiGithubCom && reqType != RequestType.MiseGithubCom && reqType != RequestType.MiseRawGithubusercontentCom) {
 			return new Response("You need to login.", {
 			status: 401,
 			headers: {
@@ -327,6 +337,16 @@ async function handleRequest(request : Request, env : Env, ctx : ExecutionContex
 	let pVer : string;
 
 	switch (reqType) {
+		case RequestType.MiseApiGithubCom:
+			return handleMiseApiGithubCom(remainingPath, filePrefix, url.search, request.method == "GET" ? async (repository, version) => logInstall("mise", ip, repository, version) : undefined);
+
+		case RequestType.MiseGithubCom:
+		case RequestType.MiseRawGithubusercontentCom:
+			[res, pName, pVer] = await handleMiseGithubFetch(remainingPath, reqType == RequestType.MiseRawGithubusercontentCom ? "raw-githubusercontent-com" : "github-com", request.method == "HEAD" ? "HEAD" : "GET");
+			if (request.method == "GET" && res.status == 200 && pVer != "" && !/\.(?:sha\d*|sig|minisig|asc|pem)$/.test(remainingPath))
+				await logInstall("mise", ip, pName, pVer);
+			return res;
+
 		// Handle approval of new package
 		// case RequestType.ApprovePackage:
 		// 	return approvePackage(remainingPath);
@@ -357,7 +377,7 @@ async function handleRequest(request : Request, env : Env, ctx : ExecutionContex
 			[res, pName, pVer] = await handlePypiFetch(remainingPath);
 			if (res.status == 404) {
 				return new Response('Package/version not found', { status: 404 });
-			} 
+			}
 			if (!remainingPath.endsWith(".metadata")) {
 				//console.log(`Got request to download and install: ${pName}==${pVer} from ${ip}`);
 				await logInstall("pypi", ip, pName, pVer);
